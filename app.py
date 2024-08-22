@@ -29,6 +29,8 @@ from OCC.Core.BRepBndLib import brepbndlib
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_Edge, shapeanalysis
 from OCC.Core.StlAPI import StlAPI_Writer
+# from OCC.Core.TopExp import TopExp
+# from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 
 app = Flask(__name__)
 #initializing all the directories
@@ -97,8 +99,8 @@ def upload_file():
         global sspiral
         
         #creating html files to store the slice and spiral plots to display
-        h1="/home/toolpaths/Desktop/IncrementalForming/static/pnt.html"
-        h2="/home/toolpaths/Desktop/IncrementalForming/static/spnt.html"
+        h1="C:/Rnd_ISF_Slicer/IncrementalForming/static/pnt.html"
+        h2="C:/Rnd_ISF_Slicer/IncrementalForming/static/spnt.html"
         #ploting slice points
         scontour=plot(f_N1, h1, 'Contour Trajectory')
         #ploting spiral points
@@ -232,7 +234,6 @@ def stPnt(st_pnt, edges):
         b=bool()
         topexp.Vertices(edges[j], v1, v2, b)
         pnt_v1=BRep_Tool.Pnt(v1)
-        pnt_v2=BRep_Tool.Pnt(v2)
         #checking if the distance between first point of an edge in less than minimum distance
         dist=pnt_v1.Distance(st_pnt)
         if dist<min_dist:
@@ -376,6 +377,49 @@ def pointGen(edge, ref_pnt):
             pnts_gp.append(gp_pnts)           
     #returning list of orderded points and gp_Pnt   
     return pnts, pnts_gp
+
+# def generate_points(edge, ref_point):
+#     # Get the first and last vertices of the edge
+#     first_vertex = TopExp.FirstVertex(edge)
+#     last_vertex = TopExp.LastVertex(edge)
+    
+#     # Convert vertices to points
+#     pntFVertex = BRep_Tool.Pnt(first_vertex)
+#     pntLVertex = BRep_Tool.Pnt(last_vertex)
+    
+#     # Create an adaptor curve from the edge
+#     curve = BRepAdaptor_Curve(edge)
+    
+#     # Get the first and last parameters of the curve
+#     first_param = curve.FirstParameter()
+#     last_param = curve.LastParameter()
+    
+#     # Calculate the length of the curve
+#     curve_length = GCPnts_AbscissaPoint.Length(curve)
+    
+#     # Set the number of points to generate
+#     n_pnts = 300
+#     dp = (last_param - first_param) / n_pnts
+    
+#     # Initialize a list to store the contour points
+#     contour_points = []
+    
+#     # Determine the direction to generate points based on the reference point
+#     if ref_point.Distance(pntFVertex) < ref_point.Distance(pntLVertex):
+#         p = first_param + dp
+#         while p <= last_param - dp:
+#             point = curve.Value(p)
+#             contour_points.append(point)
+#             p += dp
+#     else:
+#         p = last_param - dp
+#         while p >= first_param + dp:
+#             point = curve.Value(p)
+#             contour_points.append(point)
+#             p -= dp
+    
+#     # Return the length of the curve and the list of contour points
+#     return curve_length, contour_points
 
 #generating normals on ordered points
 def normalGen(gSurface, pnts_gp):
@@ -536,7 +580,7 @@ def gen_toolpath(f_N1, f_N2, TD1, Feed, cnc, gen_type, folder):
     
     file_name=gen_type+".mpf"
     #file path for stotring toolpath(change the address to the address of your pc while locally hosting)
-    file_path=f"/home/toolpaths/Desktop/IncrementalForming/users/{email}/{folder}/"+file_name
+    file_path=f"C:/Rnd_ISF_Slicer/IncrementalForming/{email}/{folder}/"+file_name
     global f_N3
     f_N3=file_path
 
@@ -700,7 +744,7 @@ def process_step_file(step_path):
     
     file_name1="pntContour.txt"
     #file path for stotring points(change the address to the address of your pc while locally hosting)
-    file_path1=f"/home/toolpaths/Desktop/IncrementalForming/users/{email}/{cont_folder}/"+file_name1
+    file_path1=f"C:/Rnd_ISF_Slicer/IncrementalForming/{email}/{cont_folder}/"+file_name1
     global f_N1
     f_N1=file_path1
     #Opens a file to store points  
@@ -708,7 +752,7 @@ def process_step_file(step_path):
 
     file_name2="nContour.txt"
     #file path for stotring normal(change the address to the address of your pc while locally hosting)
-    file_path2=f"/home/toolpaths/Desktop/IncrementalForming/users/{email}/{cont_folder}/"+file_name2
+    file_path2=f"C:/Rnd_ISF_Slicer/IncrementalForming/{email}/{cont_folder}/"+file_name2
     global f_N2
     f_N2=file_path2
     #Opens a file to store normals
@@ -716,7 +760,7 @@ def process_step_file(step_path):
 
     file_name4="pntspiral.txt"
     #file path for stotring spiral points(change the address to the address of your pc while locally hosting)
-    file_path4=f"/home/toolpaths/Desktop/IncrementalForming/users/{email}/{spir_folder}/"+file_name4
+    file_path4=f"C:/Rnd_ISF_Slicer/IncrementalForming/{email}/{spir_folder}/"+file_name4
     global f_N4
     f_N4=file_path4
     #opens a file to store spiral points
@@ -724,7 +768,7 @@ def process_step_file(step_path):
 
     file_name5="nspiral.txt"
     #file path for stotring spiral normal(change the address to the address of your pc while locally hosting)
-    file_path5=f"/home/toolpaths/Desktop/IncrementalForming/users/{email}/{spir_folder}/"+file_name5
+    file_path5=f"C:/Rnd_ISF_Slicer/IncrementalForming/{email}/{spir_folder}/"+file_name5
     global f_N5
     f_N5=file_path5
     #opens a file to store spiral normals
@@ -914,24 +958,24 @@ def feedback():
 #downloads file containing points
 @app.route('/download1')
 def download_file1():
-    file_location = zip_folder(f"/home/toolpaths/Desktop/IncrementalForming/users/{name}/{cont_folder}") 
+    file_location = zip_folder(f"C:/Rnd_ISF_Slicer/IncrementalForming/users/{name}/{cont_folder}") 
     return send_file(file_location, as_attachment=True, download_name='Contour_'+str(datetime.now().strftime("%Y-%m-%d %H-%M-%S"))+'.zip')
 
 #downloads flie containing normals
 @app.route('/download2')
 def download_file2():
-    file_location = zip_folder(f"/home/toolpaths/Desktop/IncrementalForming/users/{name}/{spir_folder}") 
+    file_location = zip_folder(f"C:/Rnd_ISF_Slicer/IncrementalForming/users/{name}/{spir_folder}") 
     return send_file(file_location, as_attachment=True, download_name='Spiral_'+str(datetime.now().strftime("%Y-%m-%d %H-%M-%S"))+'.zip')
 
 @app.route('/simul1')
 def simulate_contour():
-    ht1="/home/toolpaths/Desktop/IncrementalForming/static/simulContour.html"
+    ht1="C:/Rnd_ISF_Slicer/IncrementalForming/static/simulContour.html"
     simulate(scontour, ht1, 'Contour Trajectory')
     return render_template('simulate1.html')
 
 @app.route('/simul2')
 def simulate_spiral():
-    ht2="/home/toolpaths/Desktop/IncrementalForming/static/simulSpiral.html"
+    ht2="C:/Rnd_ISF_Slicer/IncrementalForming/static/simulSpiral.html"
     simulate(sspiral, ht2, 'Spiral Trajectory')
     return render_template('simulate2.html')
 
